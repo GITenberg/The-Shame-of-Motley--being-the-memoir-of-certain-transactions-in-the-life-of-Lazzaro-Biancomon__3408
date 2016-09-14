@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: 1E6EY/6HEqc9QNBPJi8zBVTFhg8j6CPRyVDuE6S2wxmgFZJtOQk7uDvYH3JvuTDl5jFZ5BspTPDqv6z3++kp4nJFBXfsq7ppd+wr64ooghJnraY+mCvnOG+pCbGZOwzluTRUvS4MXBDNJSN08bROIen2rO9+fNOnZ7//kuQV4rrKgzPG+zWJNDnONTWD/zbgObJjmXk4tfLimf5Gxqw01+5LQXu9uFuy4VQsFrY1hjWTZipAopTy2T6rrVuUMQurCICpipHQpuNyB2Z2W+dLAxGnfwpTJHyQ6H2BC4hgn4Kcyy80sElruuHsGcAaxfGqiSVTgatpkPpjGWpK3nMB1lf7dZHVGB1ga38aJ7TbBauq00NhcPkdjaCiNuecq/YNEOnTbRDEJGTV6xOHwav7IQWiLksx6BmybBfFP8ZcstupG4Qh/L7EpG7V+qPxCTb4ppucwzkMO2w0qoYoyAtIxoTgsih+JvTCYU7yiY7EDIKHhIGcgjCGO+idKr73h30GzcXCBQ00F/DX9Ef1hGdqf8Jtr7YWd9uhVA52njjm7JnXJkc03YJQ/bK1ZSUoy/4zn/uI80AQz7l+ozVywHqUeU9pRLSZdGbM2aKXgNkttGJEd7JzDgz16sBfI0nJfOQjkCktG+L5IDZue193PgQMnEZGuIov2XvxRFVIYYZYpz0=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/The-Shame-of-Motley--being-the-memoir-of-certain-transactions-in-the-life-of-Lazzaro-Biancomon__3408
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
